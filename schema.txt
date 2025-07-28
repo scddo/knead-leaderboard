@@ -1,12 +1,12 @@
-CREATE TABLE users (
+CREATE TABLE  IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE trades (
+CREATE TABLE IF NOT EXISTS trades (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    user_id BIGINT UNSIGNED,
     ticker VARCHAR(10) NOT NULL,
     quantity INTEGER NOT NULL CHECK (quantity > 0),
     price NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
