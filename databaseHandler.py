@@ -8,10 +8,10 @@ from mysql.connector import errorcode
 fake = Faker()
 tickers = ['AAPL', 'GOOG', 'TSLA', 'MSFT', 'AMZN', 'NFLX', 'NVDA', 'META', 'BABA', 'AMD']
 
-mySqlUserName = "root"
-mySqlPassword = "!Soccer19"
+mySqlUserName = " "
+mySqlPassword = " "
 mySqlHost = "localhost"
-myDatabase = "leaderboard"
+myDatabase = " "
 
 #configure the MySQL connection
 mydb = mysql.connector.connect(  
@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     #call the test function to check if the database was populated correctly (should print the number of users and trades)
     #test_function()
-    
+
     #only generate the database if it does not exist already
     mycursor.execute(f"SHOW DATABASES LIKE '{myDatabase}'")
     result = mycursor.fetchone()
