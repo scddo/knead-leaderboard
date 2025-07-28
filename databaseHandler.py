@@ -1,6 +1,7 @@
 import random
 from faker import Faker
 from datetime import datetime, timedelta
+from datetime import timezone
 import mysql.connector
 from mysql.connector import errorcode
 
@@ -54,13 +55,27 @@ def generate_db():
 def randomDate():
     now = datetime.now()
     days_back = random.randint(0, 180)
-    random_time = timedelta(days=days_back, hours=random.randint(0, 23), minutes=random.randint(0, 59))
-    return (now - random_time).strftime('%Y-%m-%d %H:%M:%S')
+    hour = random.randint(9,16)  #regular trading hours
+    minute = random.randint(0, 59)
+    second = random.randint(0, 59)
+    random_time = timedelta(days=days_back, hours=hour, minutes=minute, seconds=second)
+    dt = now - random_time
+    if dt.strftime("%H") < "09" or dt.strftime("%H") > "16":
+        dt = dt.replace(hour=9, minute=0, second=0) + timedelta(days=1)
+    return dt.strftime('%Y-%m-%d %H:%M:%S')
+
+def unique_username():
+    username = fake.user_name()
+    mycursor.execute("SELECT COUNT(*) FROM users WHERE username = %s", (username,))
+    count = mycursor.fetchone()[0]
+    if count > 0:
+        return unique_username()
+    return username
 
 def populate_db(userCount, tradeCount):
     print(f"Inserting {userCount} users.")
     for _ in range(userCount):
-        username = fake.user_name()
+        username = unique_username()
         mycursor.execute("INSERT INTO users (username) VALUES (%s)", (username,))
         mydb.commit()
     print("Complete.")
@@ -83,31 +98,35 @@ def populate_db(userCount, tradeCount):
         profit_loss = round(random.uniform(-500, 500), 2)
         executed_at = randomDate()
         trades_batch.append((user_id, ticker, quantity, price, profit_loss, executed_at))
-        for i in range(0, len(trades_batch), BATCH_SIZE):
-            batch = trades_batch[i:i + BATCH_SIZE]
-            mycursor.executemany("INSERT INTO trades (user_id, ticker, quantity, price, profit_loss, executed_at) VALUES (%s, %s, %s, %s, %s, %s)", batch)
-            mydb.commit()
-            print(f"Inserted {i + len(batch)} trades into the database.")
-       
-    mycursor.commit()
+    mycursor.executemany("INSERT INTO trades (user_id, ticker, quantity, price, profit_loss, executed_at) VALUES (%s, %s, %s, %s, %s, %s)", trades_batch)
+    mydb.commit()
     trades_batch.clear()
 
     
     print("Complete.")
 
+def test_function():
+    mycursor.execute(f"USE {myDatabase}")
+    mycursor.execute("SELECT COUNT(*) FROM users")
+    print(mycursor.fetchall())
+    mycursor.execute("SELECT COUNT(*) FROM trades")
+    print(mycursor.fetchall())
+
 if __name__ == "__main__":
     #if it's giving errors, use this drop db command to regenerate and repopulate the db from scratch
     #mycursor.execute("drop database if exists leaderboard")
 
+    #call the test function to check if the database was populated correctly (should print the number of users and trades)
+    #test_function()
+    
     #only generate the database if it does not exist already
     mycursor.execute(f"SHOW DATABASES LIKE '{myDatabase}'")
     result = mycursor.fetchone()
     if not result:
         generate_db()
         populate_db(100, 10000)
-    mycursor.execute(f"USE {myDatabase}")
-    mycursor.execute("SELECT COUNT(*) FROM users")
-    print(mycursor.fetchall())
+    
+    
     #close the connection when the code is done
     if mydb.is_connected():
                 mycursor.close()
