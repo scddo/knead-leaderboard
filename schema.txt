@@ -1,0 +1,16 @@
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE trades (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    ticker VARCHAR(10) NOT NULL,
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    price NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
+    profit_loss NUMERIC(12, 2),
+    executed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
