@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Kneaderboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --brand-color: #7B84DB;
+            --background-color: #f8f9fa;
+            --text-color: #212529;
+            --card-background: #ffffff;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --border-color: #dee2e6;
+            --icon-fill: #212529;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #121212;
+                --text-color: #e0e0e0;
+                --card-background: #1e1e1e;
+                --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                --border-color: #333333;
+                --icon-fill: #e0e0e0;
+            }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--brand-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .leaderboards-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .leaderboard-column {
+            flex: 1;
+            min-width: 280px;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .leaderboard-column h2 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+            color: var(--brand-color);
+            transition: border-color 0.3s ease, color 0.3s ease;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 8px 4px;
+            text-align: left;
+        }
+
+        th {
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: rgba(128, 128, 128, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <h1 class="header">
+            The Kneaderboard
+        </h1>
+    </div>
+    
+    <div class="leaderboards-container">
+        <div class="leaderboard-column">
+            <h2>Daily</h2>
+            <table id="daily-leaderboard"></table>
+        </div>
+
+        <div class="leaderboard-column">
+            <h2>Monthly</h2>
+            <table id="monthly-leaderboard"></table>
+        </div>
+
+        <div class="leaderboard-column">
+            <h2>All-Time</h2>
+            <table id="all-time-leaderboard"></table>
+        </div>
+    </div>
+
+    <script>
+        // fake chatgpt data
+        const mockAllTimeData = [
+            { rank: 1, username: 'trader_jane', total_pnl: 55000.75 },
+            { rank: 2, username: 'profit_pete', total_pnl: 48000.50 },
+            { rank: 3, username: 'rocket_reid', total_pnl: 47500.00 },
+            { rank: 4, username: 'diamond_hands', total_pnl: 32000.25 },
+            { rank: 5, 'username': 'captain_crypto', total_pnl: 21000.00 },
+        ];
+        const mockDailyData = [
+            { rank: 1, username: 'rocket_reid', total_pnl: 1250.22 },
+            { rank: 2, username: 'trader_jane', total_pnl: 980.10 },
+            { rank: 3, username: 'day_dreamer', total_pnl: 750.00 },
+        ];
+        const mockMonthlyData = [
+            { rank: 1, username: 'profit_pete', total_pnl: 15200.50 },
+            { rank: 2, username: 'trader_jane', total_pnl: 14800.75 },
+            { rank: 3, username: 'captain_crypto', total_pnl: 11300.00 },
+        ];
+
+        function populateLeaderboard(tableId, data) {
+            const table = document.getElementById(tableId);
+            table.innerHTML = ''; 
+
+            const thead = table.createTHead();
+            const headerRow = thead.insertRow();
+            const headers = ['Rank', 'Username', 'P&L'];
+            headers.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+
+            const tbody = table.createTBody();
+            data.forEach(user => {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = user.rank;
+                row.insertCell().textContent = user.username;
+                const pnlCell = row.insertCell();
+                pnlCell.textContent = user.total_pnl.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+            });
+        }
+
+        window.addEventListener('load', () => {
+            populateLeaderboard('daily-leaderboard', mockDailyData);
+            populateLeaderboard('monthly-leaderboard', mockMonthlyData);
+            populateLeaderboard('all-time-leaderboard', mockAllTimeData);
+        });
+    </script>
+</body>
+</html>
