@@ -173,10 +173,25 @@
             });
         }
 
+        async function fetchAllTime() {
+            const res = await fetch('/api/leaderboard/all-time');
+            const data = await res.json();
+            populateLeaderboard('all-time-leaderboard', data);
+        }
+
+        async function fetchDaily() {
+            const res = await fetch('/api/leaderboard/daily');
+            const data = await res.json();
+            populateLeaderboard('daily', data);
+        }
+
+        async function fetchMonthly() {
+            const res = await fetch('/api/leaderboard/monthly');
+            const data = await res.json();
+            populateLeaderboard('monthly', data);
+        }
         window.addEventListener('load', () => {
-            populateLeaderboard('daily-leaderboard', mockDailyData);
-            populateLeaderboard('monthly-leaderboard', mockMonthlyData);
-            populateLeaderboard('all-time-leaderboard', mockAllTimeData);
+            fetchAllTime, fetchMonthly, fetchDaily
         });
     </script>
 </body>

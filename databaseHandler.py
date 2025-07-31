@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from datetime import timezone
 import mysql.connector
 from mysql.connector import errorcode
+from flask import Flask, jsonify
 
 fake = Faker()
 tickers = ['AAPL', 'GOOG', 'TSLA', 'MSFT', 'AMZN', 'NFLX', 'NVDA', 'META', 'BABA', 'AMD']
@@ -13,13 +14,18 @@ mySqlPassword = " "
 mySqlHost = "localhost"
 myDatabase = " "
 
+app = Flask(__name__)
+@app.route('/')
+def home():
+    return render_template('index.html')
+
 #configure the MySQL connection
 mydb = mysql.connector.connect(  
     host=mySqlHost,
     user=mySqlUserName,
     password=mySqlPassword,
 )
-mycursor = mydb.cursor()
+myCursor = mydb.cursor()
 
 #function to generate the database and tables if they don't exist
 def generate_db():
@@ -27,12 +33,12 @@ def generate_db():
         
         #create the database if it does not exist
         try:
-            mycursor.execute(f"CREATE DATABASE IF NOT EXISTS {myDatabase}")
+            myCursor.execute(f"CREATE DATABASE IF NOT EXISTS {myDatabase}")
             print(f"Database `{myDatabase}` created or already exists.")
         except mysql.connector.Error as err:
             print(f"Failed creating database: {err}")
             exit(1)
-        mycursor.execute(f"USE {myDatabase}")
+        myCursor.execute(f"USE {myDatabase}")
 
         #read from the schema file
         with open('schema.txt', 'r') as schema_file:
@@ -41,11 +47,11 @@ def generate_db():
         #execute the schema by splitting the file
         for statement in schema.strip().split(';'):
             if statement.strip(): 
-                mycursor.execute(statement)
+                myCursor.execute(statement)
 
         #list tables  
-        mycursor.execute("SHOW TABLES")
-        for x in mycursor:
+        myCursor.execute("SHOW TABLES")
+        for x in myCursor:
           print(x)
 
     #error handling
@@ -66,8 +72,8 @@ def randomDate():
 
 def unique_username():
     username = fake.user_name()
-    mycursor.execute("SELECT COUNT(*) FROM users WHERE username = %s", (username,))
-    count = mycursor.fetchone()[0]
+    myCursor.execute("SELECT COUNT(*) FROM users WHERE username = %s", (username,))
+    count = myCursor.fetchone()[0]
     if count > 0:
         return unique_username()
     return username
@@ -76,13 +82,13 @@ def populate_db(userCount, tradeCount):
     print(f"Inserting {userCount} users.")
     for _ in range(userCount):
         username = unique_username()
-        mycursor.execute("INSERT INTO users (username) VALUES (%s)", (username,))
+        myCursor.execute("INSERT INTO users (username) VALUES (%s)", (username,))
         mydb.commit()
     print("Complete.")
 
     #get a list of the user IDs
-    mycursor.execute("SELECT id FROM users")
-    rows = mycursor.fetchall()
+    myCursor.execute("SELECT id FROM users")
+    rows = myCursor.fetchall()
     userIDs = [row[0] for row in rows]
 
 
@@ -98,7 +104,7 @@ def populate_db(userCount, tradeCount):
         profit_loss = round(random.uniform(-500, 500), 2)
         executed_at = randomDate()
         trades_batch.append((user_id, ticker, quantity, price, profit_loss, executed_at))
-    mycursor.executemany("INSERT INTO trades (user_id, ticker, quantity, price, profit_loss, executed_at) VALUES (%s, %s, %s, %s, %s, %s)", trades_batch)
+    myCursor.executemany("INSERT INTO trades (user_id, ticker, quantity, price, profit_loss, executed_at) VALUES (%s, %s, %s, %s, %s, %s)", trades_batch)
     mydb.commit()
     trades_batch.clear()
 
@@ -106,28 +112,74 @@ def populate_db(userCount, tradeCount):
     print("Complete.")
 
 def test_function():
-    mycursor.execute(f"USE {myDatabase}")
-    mycursor.execute("SELECT COUNT(*) FROM users")
-    print(mycursor.fetchall())
-    mycursor.execute("SELECT COUNT(*) FROM trades")
-    print(mycursor.fetchall())
+    myCursor.execute(f"USE {myDatabase}")
+    myCursor.execute("SELECT COUNT(*) FROM users")
+    print(myCursor.fetchall())
+    myCursor.execute("SELECT COUNT(*) FROM trades")
+    print(myCursor.fetchall())
+
+def generate_leaderboard(period):
+    myCursor.execute(f"USE {myDatabase}")
+
+    if period == 'daily':
+        where_clause = "WHERE DATE(executed_at) = CURDATE()"
+    elif period == 'monthly':
+        where_clause = "WHERE YEAR(executed_at) = YEAR(CURDATE()) AND MONTH(executed_at) = MONTH(CURDATE())"
+    else:
+        where_clause = ""
+
+
+    query = f"""
+        SELECT u.username, 
+            ROUND(SUM(t.profit_loss), 2) AS total_pnl
+        FROM trades t
+        JOIN users u ON t.user_id = u.id
+        {where_clause}
+        GROUP BY u.id
+        ORDER BY total_pnl DESC
+        LIMIT 10;
+    """
+
+    myCursor.execute(query)
+
+    #add a column to rank the sorted data
+    results = myCursor.fetchall()
+    for i, row in enumerate(results):
+        row['rank'] = i + 1
+    return results
+
+
 
 if __name__ == "__main__":
     #if it's giving errors, use this drop db command to regenerate and repopulate the db from scratch
-    #mycursor.execute("drop database if exists leaderboard")
+    #myCursor.execute("drop database if exists leaderboard")
 
     #call the test function to check if the database was populated correctly (should print the number of users and trades)
     #test_function()
 
     #only generate the database if it does not exist already
-    mycursor.execute(f"SHOW DATABASES LIKE '{myDatabase}'")
-    result = mycursor.fetchone()
+    myCursor.execute(f"SHOW DATABASES LIKE '{myDatabase}'")
+    result = myCursor.fetchone()
     if not result:
         generate_db()
         populate_db(100, 10000)
     
+    @app.route('/api/leaderboard/all-time')
+    def api_all_time():
+        data = generate_leaderboard()
+        return jsonify(data)
+    
+    @app.route('/api/leaderboard/daily')
+    def api_all_time():
+        data = generate_leaderboard('daily')
+        return jsonify(data)
+    
+    @app.route('/api/leaderboard/monthly')
+    def api_all_time():
+        data = generate_leaderboard('monthly')
+        return jsonify(data)
     
     #close the connection when the code is done
     if mydb.is_connected():
-                mycursor.close()
+                myCursor.close()
                 mydb.close()
