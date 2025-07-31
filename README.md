@@ -31,9 +31,18 @@ mySqlHost = "localhost"
 myDatabase = "leaderboard"
 ```
 ## Usage
+Set up and activate the virtual environment:
+```bash
+python -m venv venv
+venv/Scripts/activate #or source venv/bin/activate on mac and linux
+```
 
-Simply run the script:
+### Install the dependencies:
+```bash
+pip install -r requirements
+```
 
+### Simply run the script:
 ```bash
 python databaseHandler.py
 ```
