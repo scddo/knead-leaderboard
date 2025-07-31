@@ -131,25 +131,6 @@
     </div>
 
     <script>
-        // fake chatgpt data
-        const mockAllTimeData = [
-            { rank: 1, username: 'trader_jane', total_pnl: 55000.75 },
-            { rank: 2, username: 'profit_pete', total_pnl: 48000.50 },
-            { rank: 3, username: 'rocket_reid', total_pnl: 47500.00 },
-            { rank: 4, username: 'diamond_hands', total_pnl: 32000.25 },
-            { rank: 5, 'username': 'captain_crypto', total_pnl: 21000.00 },
-        ];
-        const mockDailyData = [
-            { rank: 1, username: 'rocket_reid', total_pnl: 1250.22 },
-            { rank: 2, username: 'trader_jane', total_pnl: 980.10 },
-            { rank: 3, username: 'day_dreamer', total_pnl: 750.00 },
-        ];
-        const mockMonthlyData = [
-            { rank: 1, username: 'profit_pete', total_pnl: 15200.50 },
-            { rank: 2, username: 'trader_jane', total_pnl: 14800.75 },
-            { rank: 3, username: 'captain_crypto', total_pnl: 11300.00 },
-        ];
-
         function populateLeaderboard(tableId, data) {
             const table = document.getElementById(tableId);
             table.innerHTML = ''; 
@@ -182,16 +163,18 @@
         async function fetchDaily() {
             const res = await fetch('/api/leaderboard/daily');
             const data = await res.json();
-            populateLeaderboard('daily', data);
+            populateLeaderboard('daily-leaderboard', data);
         }
 
         async function fetchMonthly() {
             const res = await fetch('/api/leaderboard/monthly');
             const data = await res.json();
-            populateLeaderboard('monthly', data);
+            populateLeaderboard('monthly-leaderboard', data);
         }
         window.addEventListener('load', () => {
-            fetchAllTime, fetchMonthly, fetchDaily
+            fetchAllTime();
+            fetchDaily();
+            fetchMonthly();
         });
     </script>
 </body>
