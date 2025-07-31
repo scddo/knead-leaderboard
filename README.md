@@ -31,7 +31,7 @@ mySqlHost = "localhost"
 myDatabase = "leaderboard"
 ```
 ## Usage
-Set up and activate the virtual environment:
+### Set up and activate the virtual environment:
 ```bash
 python -m venv venv
 venv/Scripts/activate #or source venv/bin/activate on mac and linux
