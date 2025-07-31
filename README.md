@@ -13,16 +13,6 @@ This project simulates a stock trading leaderboard system using Python and MySQL
 - Python 3.7+
 - MySQL Server
 
-**Ensure MySQL is running and a user like root has the proper credentials.**
-
-
-Edit `databaseHandler.py` and set your MySQL credentials at the top of the file:
-```python
-mySqlUserName = "root"
-mySqlPassword = "your_password"
-mySqlHost = "localhost"
-myDatabase = "leaderboard"
-```
 ## Usage
 1. **Ensure MySQL is running and a user like root has the proper credentials.**
 Edit `databaseHandler.py` and set your MySQL credentials at the top of the file:
