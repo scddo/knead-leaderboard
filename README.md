@@ -13,14 +13,7 @@ This project simulates a stock trading leaderboard system using Python and MySQL
 - Python 3.7+
 - MySQL Server
 
-## Installation
-
-1. **Install required Python packages**:
-
-```bash
-pip install -r requirements.txt
-```
-2. **Ensure MySQL is running and a user like root has the proper credentials.**
+**Ensure MySQL is running and a user like root has the proper credentials.**
 
 
 Edit `databaseHandler.py` and set your MySQL credentials at the top of the file:
@@ -31,18 +24,27 @@ mySqlHost = "localhost"
 myDatabase = "leaderboard"
 ```
 ## Usage
-### Set up and activate the virtual environment:
+1. **Ensure MySQL is running and a user like root has the proper credentials.**
+Edit `databaseHandler.py` and set your MySQL credentials at the top of the file:
+```python
+mySqlUserName = "root"
+mySqlPassword = "your_password"
+mySqlHost = "localhost"
+myDatabase = "leaderboard"
+```
+
+2. **Set up and activate the virtual environment:**
 ```bash
 python -m venv venv
 venv/Scripts/activate #or source venv/bin/activate on mac and linux
 ```
 
-### Install the dependencies:
+3. **Install the dependencies:**
 ```bash
 pip install -r requirements
 ```
 
-### Simply run the script:
+4. **Simply run the script:**
 ```bash
 python databaseHandler.py
 ```
