@@ -9,10 +9,10 @@ from flask import Flask, jsonify, render_template
 fake = Faker()
 tickers = ['AAPL', 'GOOG', 'TSLA', 'MSFT', 'AMZN', 'NFLX', 'NVDA', 'META', 'BABA', 'AMD']
 
-mySqlUserName = "root"
-mySqlPassword = "!Soccer19"
-mySqlHost = "localhost"
-myDatabase = "leaderboard"
+mySqlUserName = " "
+mySqlPassword = " "
+mySqlHost = " "
+myDatabase = " "
 
 app = Flask(__name__)
 @app.route('/')
