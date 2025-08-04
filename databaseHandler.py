@@ -9,10 +9,10 @@ from flask import Flask, jsonify, render_template
 fake = Faker()
 tickers = ['AAPL', 'GOOG', 'TSLA', 'MSFT', 'AMZN', 'NFLX', 'NVDA', 'META', 'BABA', 'AMD']
 
-mySqlUserName = "root"
-mySqlPassword = "!Soccer19"
-mySqlHost = "localhost"
-myDatabase = "leaderboard"
+mySqlUserName = " "
+mySqlPassword = " "
+mySqlHost = " "
+myDatabase = " "
 
 app = Flask(__name__)
 @app.route('/')
@@ -226,4 +226,4 @@ if __name__ == "__main__":
     myCursor.execute(f"SELECT DATE(executed_at), COUNT(*) FROM trades GROUP BY DATE(executed_at) ORDER BY DATE(executed_at) DESC LIMIT 5;")
     result = myCursor.fetchone()
     print(result)
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)
